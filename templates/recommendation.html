@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}추천 결과 | HobbyMatch{% endblock %}
+
+{% block content %}
+
+<div class="recommendation-container">
+
+    <h1>당신에게 추천하는 취미</h1>
+
+    <p class="recommendation-description">
+        입력한 정보를 바탕으로 잘 맞는 취미를 추천해드려요.
+    </p>
+
+    <div class="recommendation-list">
+
+        {% for pick in picks %} 
+
+        <!-- 추천 카드 -->
+        <div class="recommend-card">
+
+            <span class="recommend-badge">
+                {{ pick.badge }}
+            </span>
+
+            <h2>{{ pick.hobby.name }}</h2>
+
+            <p class="hobby-description">
+                {{ pick.hobby.description }}
+            </p>
+
+            <p class="score">
+                추천 점수 : {{ pick.total_score }}점
+            </p>
+
+            <div class="recommend-reasons">
+
+                <h3>이런 점이 잘 맞아요</h3>
+
+                <div class="reason-list">
+                    {% for reason in pick.reasons %}
+                        <p class="recommend-reason">
+                            <span class="reason-check">✓</span>
+                            {{ reason.text }}
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button
+                class="guide-button"
+                type="button"
+                onclick="openGuideModal('guide-modal-{{ loop.index }}')">
+                시작 가이드 보기
+            </button>
+        </div>
+
+
+        <!-- 시작 가이드 팝업 -->
+        <div
+            class="guide-modal"
+            id="guide-modal-{{ loop.index }}">
+
+            <div class="guide-modal-content">
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    onclick="closeGuideModal('guide-modal-{{ loop.index }}')">
+                    ×
+                </button>
+
+                <h2>{{ pick.hobby.name }} 시작 가이드</h2>
+
+
+                <!-- 준비물 -->
+                <h3>준비물</h3>
+
+                <ul>
+                    {% for item in pick.hobby.starterGuide.preparationChecklist %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+
+
+                <!-- 시작 방법 -->
+                <h3>시작 방법</h3>
+
+                {% for step in pick.hobby.starterGuide.steps %}
+
+                <div class="guide-step">
+
+                    <h4>
+                        STEP {{ step.stepNumber }}. {{ step.title }}
+                    </h4>
+
+                    <p>
+                        {{ step.description }}
+                    </p>
+
+                </div>
+
+                {% endfor %}
+
+
+                <!-- 주의사항 -->
+                <h3>주의사항</h3>
+
+                <p>
+                    {{ pick.hobby.starterGuide.commonMistakes }}
+                </p>
+
+
+                <!-- 예상 월 비용 -->
+                <h3>예상 월 비용</h3>
+
+                <p>
+                    {{ pick.hobby.starterGuide.estimatedMonthlyCost }}
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+    <div class ="restart-container">
+    <button type="button" class="restart-button" 
+            onclick="
+                sessionStorage.removeItem('diagnosisCurrentStep');
+                sessionStorage.removeItem('diagnosisMaxReachedStep');
+                location.href='/diagnosis/reset'
+            ">
+        다시 진단하기 
+    </button>
+    
+    </div>
+
+</div>
+
+
+<script>
+    function openGuideModal(modalId) {
+        document.getElementById(modalId).style.display = "flex";
+    }
+
+    function closeGuideModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+</script>
+
+{% endblock %}
